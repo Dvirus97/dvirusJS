@@ -5,7 +5,7 @@
  * @param {function(MouseEvent): void} callback - The callback function to be called when a click outside the specified elements is detected.
  * @returns {function(): void} A cleanUp function to remove the click outside listener.
  */
-export function setupClickOutsideListener(
+export function addClickOutsideListener(
     elements: HTMLElement | HTMLElement[],
     callback: (event: MouseEvent) => void
 ): () => void {
