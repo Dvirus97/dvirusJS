@@ -43,6 +43,24 @@ export class Result<T, E extends Error = Error> {
     }
 
     /**
+     * Wraps a function call in a Result.
+     * @param {(...args: any[]) => T} func - The function to call.
+     * @param {...any[]} args - The arguments to pass to the function.
+     * @returns {Result<T, E>} A Result instance representing the function call result.
+     */
+    static func<T, E extends Error = Error>(
+        func: (...args: any[]) => T,
+        ...args: any[]
+    ): Result<T, E> {
+        try {
+            const val = func(...args);
+            return Result.ok(val);
+        } catch (error) {
+            return Result.err(error);
+        }
+    }
+
+    /**
      * @param {T | null} ok - The success value.
      * @param {E | null} err - The error value.
      * @throws {Error} If both ok and err are provided or neither is provided.

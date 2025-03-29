@@ -104,17 +104,27 @@ export class LinqJs<T extends LinqJsType> {
         return this;
     }
 
-    groupByOnly<R extends string | number>(keySelector: (item: T) => R) {
-        const groupedData = this.list.reduce<Record<string | number, any>>((groups, item) => {
+    /**
+     * Groups the list by a specified key.
+     * @param keySelector - A function to extract the key for each element.
+     * @returns A new LinqJs instance with grouped elements.
+     */
+    groupBy<R extends string | number>(
+        keySelector: (item: T) => R
+    ): LinqJs<{ key: R; items: T[] }> {
+        const groupedData: Record<R, { key: R; items: T[] }> = this.list.reduce<
+            Record<R, { key: R; items: T[] }>
+        >((groups, item) => {
             const key = keySelector(item);
             if (!groups[key]) {
                 groups[key] = { key, items: [] };
             }
             groups[key].items.push(item);
             return groups;
-        }, {});
+        }, {} as Record<R, { key: R; items: T[] }>);
 
-        return new LinqJs(Object.values(groupedData));
+        const value: { key: R; items: T[] }[] = Object.values(groupedData);
+        return new LinqJs(value);
     }
 
     // /**
@@ -154,13 +164,14 @@ export class LinqJs<T extends LinqJsType> {
      * @returns A new LinqJs instance with aggregated data.
      */
     applyAggregations<TField extends string>(
-        aggregations: Aggregation<TField>[]
+        aggregations: Aggregation<TField> | Aggregation<TField>[]
     ): LinqJs<
         T extends Record<string, any> ? { [P in keyof T]: T[P] } & Record<string, any> : never
     > {
         if (!this.list.every((item) => typeof item === "object" && "items" in item)) {
-            throw new Error("applyAggregations should be used after groupByOnly");
+            throw new Error("applyAggregations should be used after groupBy");
         }
+        aggregations = Array.isArray(aggregations) ? aggregations : [aggregations];
 
         const result = this.list.map((group) => {
             const aggregated = aggregations.reduce((acc, { aggregator, field, alias }) => {
@@ -244,6 +255,7 @@ export class LinqJs<T extends LinqJsType> {
 
     /**
      * Gets the keys of the first element in the list.
+     * @throws if the list is not an array of objects, an error is thrown.
      * @returns An array of keys.
      */
     keys(): string[] {
