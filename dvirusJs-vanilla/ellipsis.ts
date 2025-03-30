@@ -30,3 +30,14 @@ export function setupIsEllipsisListener(
     };
 }
 
+// usage example
+function main() {
+    const element = document.querySelector<HTMLElement>(".element");
+    if (!element) return;
+    const cleanUp = setupIsEllipsisListener(element, (isEllipsis) => {
+        console.log("Is ellipsis:", isEllipsis);
+    });
+
+    // clean up
+    cleanUp();
+}

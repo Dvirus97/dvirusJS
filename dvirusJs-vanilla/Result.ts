@@ -48,9 +48,9 @@ export class Result<T, E extends Error = Error> {
      * @param {...any[]} args - The arguments to pass to the function.
      * @returns {Result<T, E>} A Result instance representing the function call result.
      */
-    static func<T, E extends Error = Error>(
-        func: (...args: any[]) => T,
-        ...args: any[]
+    static func<T, E extends Error = Error, TParam extends Array<unknown> = []>(
+        func: (...args: TParam) => T,
+        ...args: TParam
     ): Result<T, E> {
         try {
             const val = func(...args);
@@ -147,31 +147,50 @@ export class Result<T, E extends Error = Error> {
 
 // usage
 async function main() {
-    function divide(a: number, b: number) {
+    function divide(a: number, b: number): Result<number, Error> {
         if (b == 0) {
             return Result.err("cannot divide by 0 :(");
         }
         return Result.ok(a / b);
     }
-    const result = divide(10, 0);
+    const result: Result<number> = divide(10, 0);
     if (result.isErr()) {
         console.error(result.error.message);
         return;
     }
     console.log(result.value);
 
-    async function foo() {
+    // ##############################
+
+    async function foo(): Promise<number> {
         if (Math.random() > 0.5) {
             throw new Error("this is error");
         }
         return 5;
     }
 
-    const x = await Result.promise(foo());
+    // ##############################
+
+    const x: Result<number> = await Result.promise(foo());
     if (x.isErr()) {
         console.error(x.error.message);
         return;
     }
     console.log(x.value);
+
+    // ##############################
+
+    function someFunc(a: number, b: number): number {
+        if (b == 0) {
+            throw new Error("cannot divide by 0 :(");
+        }
+        return a / b;
+    }
+
+    const y: Result<number> = Result.func(someFunc, 10, 0);
+    if (y.isErr()) {
+        console.error(y.error.message);
+        return;
+    }
+    console.log(y.value);
 }
-// main();

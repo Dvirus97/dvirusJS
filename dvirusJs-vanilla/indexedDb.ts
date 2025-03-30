@@ -4,7 +4,7 @@ const indexedDb = window.indexedDB; // || window.mozIndexedDB || window.webkitIn
  * A class to interact with IndexedDB.
  * @template T - The type of the database schema.
  */
-export class IDB<T extends Record<string, any>> {
+export class IndexedDb<T extends Record<string, any>> {
     /**
      * @param {string} dbName - The name of the database.
      * @param {Array<keyof T>} tableNames - The names of the tables.
@@ -305,4 +305,34 @@ export class IDB<T extends Record<string, any>> {
         const store = transaction.objectStore(tableName.toString());
         return store;
     }
+}
+
+// usage example
+async function main() {
+    type AppDb = {
+        person: { name: string; age: number };
+        user: { name: string; email: string };
+        product: { name: string; price: number };
+    };
+
+    const db = new IndexedDb<AppDb>("DB-Name", ["person", "user", "product"], 1);
+
+    await db.getOne("person", 1);
+    await db.getMany("person", [1, 2, 3]);
+    await db.getAll("person");
+
+    await db.addOne("person", { name: "John", age: 25 });
+    await db.addMany("person", [
+        { name: "John aa", age: 25 },
+        { name: "Jane aa", age: 30 },
+    ]);
+
+    await db.updateOne("person", { _id: 1, name: "John updated 2", age: 30 });
+    await db.updateMany("person", [
+        { _id: 1, name: "dvirus", age: 30 },
+        { _id: 2, name: "berta", age: 35 },
+    ]);
+
+    await db.deleteOne("person", 1);
+    await db.deleteMany("person", [1, 2, 3, 4, 5, 6]);
 }

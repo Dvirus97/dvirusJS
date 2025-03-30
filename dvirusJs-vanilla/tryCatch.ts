@@ -48,6 +48,7 @@ export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<TryRe
         return [null, error as E];
     }
 }
+
 // usage
 async function main() {
     async function foo() {

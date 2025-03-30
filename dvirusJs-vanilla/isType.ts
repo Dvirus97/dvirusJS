@@ -9,13 +9,13 @@ export type JsTypeMap<TInner = unknown> = {
     boolean: boolean;
     symbol: symbol;
     undefined: undefined;
-    object: Record<string, TInner>;
+    object: TInner;
     array: TInner[];
     function: (...args: unknown[]) => unknown;
 };
 
 /**
- * Checks if the given object is of the specified JavaScript type.
+ * Checks if the given object is of the specified JavaScript type, and convert its type.
  * @template T - The key of the JsTypeMap.
  * @template TInner - The type of the inner elements for object and array types.
  * @param {unknown} obj - The object to check.
@@ -31,3 +31,16 @@ export function isType<T extends keyof JsTypeMap, TInner = unknown>(
     return typeof obj === type;
 }
 
+// usage example
+function main() {
+    const obj: unknown = { a: 1, b: 2 };
+    if (isType<"object", { a: number }>(obj, "object")) {
+        console.log("Object:", obj.a);
+    }
+    if (isType<"array", string>(obj, "array")) {
+        console.log("Array:", obj);
+    }
+    if (isType(obj, "number")) {
+        console.log("Number:", obj);
+    }
+}
