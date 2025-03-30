@@ -91,19 +91,17 @@ export class Listener<TArgs> {
 
 // usage
 function main() {
-    const listener = new EventListener<Record<string, unknown>>();
-    listener.on("dvir", (args) => {
+    const eventLis = new EventListener<Record<string, unknown>>();
+    eventLis.on("event1", (args) => {
         console.log(args);
     });
 
-    listener.emit("dvir", { a: "this is arg", b: 27 });
+    eventLis.emit("event1", { a: "this is arg", b: 27 });
 
-    const listener1 = new Listener<Record<string, unknown>>();
-    listener1.on((args) => {
+    const listener = new Listener<Record<string, unknown>>();
+    listener.on((args) => {
         console.log(args);
     });
 
-    listener1.emit({ a: "this is arg", b: 27 });
+    listener.emit({ a: "this is arg", b: 27 });
 }
-
-// main();

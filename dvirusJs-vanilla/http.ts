@@ -10,7 +10,7 @@ export const http = {
      * @returns {Promise<any>} The response data.
      * @throws {Error} If the response is not ok.
      */
-    get: async function (url: string, options?: RequestInit): Promise<any> {
+    get: async function <R = any>(url: string, options?: RequestInit): Promise<R> {
         const response = await fetch(url, options);
         return await handleResponse(response);
     },
@@ -18,14 +18,14 @@ export const http = {
     /**
      * Makes a POST request to the specified URL with the given data.
      *
-     * @template T
+     * @template R
      * @param {string} url - The URL to send the POST request to.
-     * @param {T} data - The data to send in the request body.
+     * @param {unknown} data - The data to send in the request body.
      * @param {RequestInit} [options] - Optional request options.
-     * @returns {Promise<any>} The response data.
+     * @returns {Promise<R>} The response data.
      * @throws {Error} If the response is not ok.
      */
-    post: async function <T>(url: string, data: T, options?: RequestInit): Promise<any> {
+    post: async function <R = any>(url: string, data: unknown, options?: RequestInit): Promise<R> {
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -41,14 +41,14 @@ export const http = {
     /**
      * Makes a DELETE request to the specified URL with the given ID.
      *
-     * @template T
+     * @template R
      * @param {string} url - The URL to send the DELETE request to.
      * @param {string} id - The ID to send in the request body.
      * @param {RequestInit} [options] - Optional request options.
-     * @returns {Promise<T>} The response data.
+     * @returns {Promise<R>} The response data.
      * @throws {Error} If the response is not ok.
      */
-    delete: async function <T>(url: string, id: string, options?: RequestInit): Promise<T> {
+    delete: async function <R = any>(url: string, id: string, options?: RequestInit): Promise<R> {
         const response = await fetch(url, {
             method: "DELETE",
             headers: {
@@ -58,20 +58,20 @@ export const http = {
             body: JSON.stringify({ id }),
             ...options,
         });
-        return await handleResponse(response) as T;
+        return await handleResponse(response);
     },
 
     /**
      * Makes a PATCH request to the specified URL with the given data.
      *
-     * @template T
+     * @template R
      * @param {string} url - The URL to send the PATCH request to.
-     * @param {T} data - The data to send in the request body.
+     * @param {unknown} data - The data to send in the request body.
      * @param {RequestInit} [options] - Optional request options.
-     * @returns {Promise<any>} The response data.
+     * @returns {Promise<R>} The response data.
      * @throws {Error} If the response is not ok.
      */
-    patch: async function <T>(url: string, data: T, options?: RequestInit): Promise<any> {
+    patch: async function <R = any>(url: string, data: unknown, options?: RequestInit): Promise<R> {
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
@@ -87,14 +87,14 @@ export const http = {
     /**
      * Makes a PUT request to the specified URL with the given data.
      *
-     * @template T
+     * @template R
      * @param {string} url - The URL to send the PUT request to.
-     * @param {T} data - The data to send in the request body.
+     * @param {unknown} data - The data to send in the request body.
      * @param {RequestInit} [options] - Optional request options.
-     * @returns {Promise<any>} The response data.
+     * @returns {Promise<R>} The response data.
      * @throws {Error} If the response is not ok.
      */
-    put: async function <T>(url: string, data: T, options?: RequestInit): Promise<any> {
+    put: async function <R = any>(url: string, data: unknown, options?: RequestInit): Promise<R> {
         const response = await fetch(url, {
             method: "PUT",
             headers: {
@@ -119,3 +119,16 @@ async function handleResponse(response: Response): Promise<any> {
     if (!response.ok) throw new Error(`Error: ${response.statusText}`);
     return await response.json();
 }
+
+
+// usage example
+ async function main() {
+    type Todo = {
+        userId: number;
+        id: number;
+        title: string;
+        completed: boolean;
+    };
+    const res = await http.get<Todo>("https://jsonplaceholder.typicode.com/todos/1");
+    console.log(res);
+ }

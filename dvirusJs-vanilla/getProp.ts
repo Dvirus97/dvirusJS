@@ -50,8 +50,8 @@ export function getProp<T, P extends string>(obj: T, path: P): PathValue<T, P> {
     return recursiveSearch(keys, obj);
 }
 
+// Example usage:
 function main() {
-    // Example usage:
     const obj = {
         a: {
             b: {

@@ -2,15 +2,19 @@ type Position = "before" | "start" | "center" | "end" | "after";
 const DELAY_SHOW = 100;
 const DELAY_HIDE = 150;
 
-const popoverOverlay = document.createElement("div");
-popoverOverlay.classList.add("popover-overlay");
-popoverOverlay.style.position = "fixed";
-popoverOverlay.style.inset = "0";
-popoverOverlay.style.pointerEvents = "none";
-popoverOverlay.style.display = "contents";
-
-document.body.appendChild(popoverOverlay);
-const popoverMap = new Map<string, HTMLElement>();
+const getOrCreateOverlay = (): HTMLElement => {
+    let overlay = document.getElementById("popover-overlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "popover-overlay";
+        overlay.style.position = "absolute";
+        overlay.style.inset = "0";
+        overlay.style.pointerEvents = "none"; // Prevent interference with the app
+        overlay.style.zIndex = "1000";
+        document.body.appendChild(overlay);
+    }
+    return overlay;
+};
 
 /**
  * Applies popover functionality to all elements with the [popover][tooltip] attributes.
@@ -24,6 +28,7 @@ const popoverMap = new Map<string, HTMLElement>();
     - popoverAnchorVertical="before" (Position)  
     - popoverAnchorHorizontal="center" (Position)
     - popoverOnHover="false" 
+    - popoverFallback="true" 
 
 # trigger element attributes
     - popovertarget="popover-id"
@@ -41,21 +46,27 @@ export function applyAnchorOnAllPopovers() {
             throw new Error(`add 'popovertarget' to trigger popover ${id}`);
         }
 
-        const anchorVertical: Position = (tooltip.getAttribute("popoverAnchorVertical") ||
+        const anchorVertical = (tooltip.getAttribute("popoverAnchorVertical") ||
             "before") as Position;
-        const anchorHorizontal: Position = (tooltip.getAttribute("popoverAnchorHorizontal") ||
+        const anchorHorizontal = (tooltip.getAttribute("popoverAnchorHorizontal") ||
             "center") as Position;
-        const onHover = tooltip.getAttribute("popoverOnHover");
+        const onHover = tooltip.getAttribute("popoverOnHover") ?? 'false';
+        const withFallback = tooltip.getAttribute("popoverFallback") ?? 'false';
 
         tooltip.style.margin = "0";
         tooltip.style.position = "absolute";
 
         const updatePosition = () => {
             setTimeout(() => {
-                anchor(trigger, tooltip, {
-                    vertical: anchorVertical,
-                    horizontal: anchorHorizontal,
-                });
+                anchor(
+                    trigger,
+                    tooltip,
+                    {
+                        vertical: anchorVertical,
+                        horizontal: anchorHorizontal,
+                    },
+                    { withFallback: withFallback != "false" }
+                );
             }, 10);
         };
 
@@ -65,8 +76,7 @@ export function applyAnchorOnAllPopovers() {
         window.addEventListener("scroll", updatePosition);
         trigger?.addEventListener("click", updatePosition);
 
-        let timer: number | any;
-        if (onHover === "true") {
+        if (onHover != "false") {
             addHoverListeners(trigger, tooltip, updatePosition);
         }
     });
@@ -108,6 +118,40 @@ function addHoverListeners(trigger: HTMLElement, tooltip: HTMLElement, updatePos
     });
 }
 
+// prettier-ignore
+const _positions: { vertical: Position; horizontal: Position }[] = [
+    // ...position,                                         
+    { vertical: "before",    horizontal: "center"     },  
+    { vertical: "center",    horizontal: "before"     },   
+    { vertical: "center",    horizontal: "after"      },   
+    { vertical: "after",     horizontal: "center"     }, 
+
+    { vertical: "before",    horizontal: "before"     },  
+    { vertical: "before",    horizontal: "start"      },   
+    { vertical: "before",    horizontal: "end"        },     
+    { vertical: "before",    horizontal: "after"      },   
+
+    { vertical: "start",     horizontal: "before"     },   
+    { vertical: "start",     horizontal: "start"      },   
+    { vertical: "start",     horizontal: "center"     },   
+    { vertical: "start",     horizontal: "end"        },   
+    { vertical: "start",     horizontal: "after"      },   
+    
+    { vertical: "center",    horizontal: "start"      },   
+    { vertical: "center",    horizontal: "end"        },   
+    
+    { vertical: "end",       horizontal: "before"     },   
+    { vertical: "end",       horizontal: "start"      },   
+    { vertical: "end",       horizontal: "center"     },   
+    { vertical: "end",       horizontal: "end"        },   
+    { vertical: "end",       horizontal: "after"      },   
+    
+    { vertical: "after",     horizontal: "before"     }, 
+    { vertical: "after",     horizontal: "start"      }, 
+    { vertical: "after",     horizontal: "end"        }, 
+    { vertical: "after",     horizontal: "after"      }, 
+];
+
 /**
  * Positions the popover element relative to the anchor element.
  * @param anchor - The element to which the popover is anchored.
@@ -127,8 +171,6 @@ export function anchor(
         margin?: number;
         /** @param options.withFallback - Whether to allow fallback to alternative positions if the preferred position doesn't fit. Default is `true`.*/
         withFallback?: boolean;
-        /** @param options.animation - The animation duration in milliseconds. Default is 200ms */
-        animation?: number;
     }
 ) {
     position = position
@@ -145,44 +187,15 @@ export function anchor(
         ...options,
     };
 
+    // const overlay = getOrCreateOverlay();
+    // if (!overlay.contains(popover)) {
+    //     overlay.appendChild(popover);
+    // }
+
     const rectAnchor = anchor.getBoundingClientRect();
     const rectPopover = popover.getBoundingClientRect();
 
-    // prettier-ignore
-    const _positions: { vertical: Position; horizontal: Position }[] = [
-        ...position,                                         
-        { vertical: "before",    horizontal: "center"     },  
-        { vertical: "center",    horizontal: "before"     },   
-        { vertical: "center",    horizontal: "after"      },   
-        { vertical: "after",     horizontal: "center"     }, 
-
-        { vertical: "before",    horizontal: "before"     },  
-        { vertical: "before",    horizontal: "start"      },   
-        { vertical: "before",    horizontal: "end"        },     
-        { vertical: "before",    horizontal: "after"      },   
-
-        { vertical: "start",     horizontal: "before"     },   
-        { vertical: "start",     horizontal: "start"      },   
-        { vertical: "start",     horizontal: "center"     },   
-        { vertical: "start",     horizontal: "end"        },   
-        { vertical: "start",     horizontal: "after"      },   
-        
-        { vertical: "center",    horizontal: "start"      },   
-        { vertical: "center",    horizontal: "end"        },   
-        
-        { vertical: "end",       horizontal: "before"     },   
-        { vertical: "end",       horizontal: "start"      },   
-        { vertical: "end",       horizontal: "center"     },   
-        { vertical: "end",       horizontal: "end"        },   
-        { vertical: "end",       horizontal: "after"      },   
-        
-        { vertical: "after",     horizontal: "before"     }, 
-        { vertical: "after",     horizontal: "start"      }, 
-        { vertical: "after",     horizontal: "end"        }, 
-        { vertical: "after",     horizontal: "after"      }, 
-    ];
-
-    const positions = options.withFallback ? _positions : position;
+    const positions = options.withFallback ? [...position, ..._positions] : position;
 
     const calculatePosition = (v: Position, h: Position) => {
         let top = rectAnchor.top + window.scrollY;
@@ -254,7 +267,6 @@ export function anchor(
         finalPosition = { top: fallback.top, left: fallback.left };
     }
 
-    // popover.style.transition = `top ${options.animation}ms, left ${options.animation}ms`;
     popover.style.position = "absolute";
     popover.style.top = `${finalPosition.top}px`;
     popover.style.left = `${finalPosition.left}px`;

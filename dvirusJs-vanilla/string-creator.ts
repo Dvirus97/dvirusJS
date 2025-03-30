@@ -11,7 +11,7 @@ const all = letters + capitals + numbers + symbols;
  * @param {number} [length=6] - The length of the string to be created.
  * @returns {string} A random string consisting of letters, capitals, numbers, and symbols.
  */
-export function createString(length: number = 6): string {
+export function createString(length: number): string {
     let string = "";
     for (let i = 0; i < length; i++) {
         string += all[Math.floor(Math.random() * all.length)];

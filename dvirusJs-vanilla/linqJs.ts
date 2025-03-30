@@ -23,11 +23,14 @@ export interface Aggregation<K> {
     alias?: string;
 }
 
-type GroupedData<T, K extends keyof T> = Record<string, { [P in K]: T[P] } & { items: T[] }>;
+export type Grouped<K, T> = { keys: K; items: T[] };
 
-type Grouped<T> = {
-    [key: string | number]: T[];
-};
+export type GroupKey = string | number;
+// type GroupedData<T, K extends keyof T> = Record<string, { [P in K]: T[P] } & { items: T[] }>;
+
+// type Grouped<T> = {
+//     [key: string | number]: T[];
+// };
 
 type LinqJsType = string | number | boolean | Record<string, any>;
 
@@ -109,21 +112,41 @@ export class LinqJs<T extends LinqJsType> {
      * @param keySelector - A function to extract the key for each element.
      * @returns A new LinqJs instance with grouped elements.
      */
-    groupBy<R extends string | number>(
-        keySelector: (item: T) => R
-    ): LinqJs<{ key: R; items: T[] }> {
-        const groupedData: Record<R, { key: R; items: T[] }> = this.list.reduce<
-            Record<R, { key: R; items: T[] }>
-        >((groups, item) => {
-            const key = keySelector(item);
-            if (!groups[key]) {
-                groups[key] = { key, items: [] };
-            }
-            groups[key].items.push(item);
-            return groups;
-        }, {} as Record<R, { key: R; items: T[] }>);
+    // groupBy<R extends string | number>(
+    //     keySelector: (item: T) => R
+    // ): LinqJs<{ key: R; items: T[] }> {
+    //     const groupedData: Record<R, { key: R; items: T[] }> = this.list.reduce<
+    //         Record<R, { key: R; items: T[] }>
+    //     >((groups, item) => {
+    //         const key = keySelector(item);
+    //         if (!groups[key]) {
+    //             groups[key] = { key, items: [] };
+    //         }
+    //         groups[key].items.push(item);
+    //         return groups;
+    //     }, {} as Record<R, { key: R; items: T[] }>);
 
-        const value: { key: R; items: T[] }[] = Object.values(groupedData);
+    //     const value: { key: R; items: T[] }[] = Object.values(groupedData);
+    //     return new LinqJs(value);
+    // }
+    groupBy<R extends GroupKey | GroupKey[]>(keySelector: (item: T) => R): LinqJs<Grouped<R, T>> {
+        const groupedData: Record<string, Grouped<R, T>> = this.list.reduce<
+            Record<string, Grouped<R, T>>
+        >((groups, item) => {
+            const _keyTuple = keySelector(item);
+            const keyTuple = Array.isArray(_keyTuple) ? _keyTuple : [_keyTuple] as R;
+            const compositeKey = JSON.stringify(keyTuple); // Use a stringified version of the tuple as the key
+            if (!groups[compositeKey]) {
+                groups[compositeKey] = {
+                    keys: keyTuple,
+                    items: [],
+                };
+            }
+            groups[compositeKey].items.push(item);
+            return groups;
+        }, {} as Record<string, Grouped<R, T>>);
+
+        const value: Grouped<R, T>[] = Object.values(groupedData);
         return new LinqJs(value);
     }
 
@@ -186,19 +209,6 @@ export class LinqJs<T extends LinqJsType> {
 
         return new LinqJs(result);
     }
-
-    // /**
-    //  * Groups the list by specified keys and applies aggregations.
-    //  * @param keys - The keys to group by.
-    //  * @param aggregations - The aggregation configurations.
-    //  * @returns A new LinqJs instance with grouped and aggregated data.
-    //  */
-    // groupBy<K extends keyof T>(
-    //     keys: K[],
-    //     aggregations: Aggregation<K>[] = []
-    // ): LinqJs<{ [P in K]: T[P] } & { [key: string]: any }> {
-    //     return this.groupByOnly(keys).applyAggregations(aggregations);
-    // }
 
     /**
      * Sums the values of a specified field.

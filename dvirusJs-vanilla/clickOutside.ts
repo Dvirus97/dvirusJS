@@ -24,6 +24,18 @@ export function addClickOutsideListener(
     };
 }
 
+// usage example
+function main() {
+    const element = document.querySelector<HTMLElement>(".element");
+    if (!element) return;
+    const cleanUp = addClickOutsideListener(element, (event) => {
+        console.log("Clicked outside the element", event);
+    });
+
+    // clean up the listener
+    cleanUp();
+}
+
 /*
 
 import { Directive, ElementRef, input, output } from '@angular/core';

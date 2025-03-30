@@ -13,6 +13,9 @@ This library is separated into some sections.
         - dom manipulations
         - and many more
 
+---
+At the end of each file i added a `usage example` code. hope thats help.
+
 > If you came across this code and want to leave a comment or make a suggestion, I will be happy to hear. 
 
 ## Enjoy :)
