@@ -187,10 +187,14 @@ export function anchor(
         ...options,
     };
 
-    // const overlay = getOrCreateOverlay();
-    // if (!overlay.contains(popover)) {
-    //     overlay.appendChild(popover);
-    // }
+    const overlay = getOrCreateOverlay();
+    if (!overlay.contains(popover)) {
+        const overlayPane = document.createElement("div");
+        overlayPane.classList.add("popover-overlay-pane");
+        overlayPane.style.pointerEvents = "auto"; // element can be interacted
+        overlayPane.appendChild(popover);
+        overlay.appendChild(overlayPane);
+    }
 
     const rectAnchor = anchor.getBoundingClientRect();
     const rectPopover = popover.getBoundingClientRect();

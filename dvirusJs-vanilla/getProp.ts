@@ -4,13 +4,14 @@
  * @template T - The type of the object.
  * @template P - The path as a string.
  */
-export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
-    ? K extends keyof T
-        ? PathValue<T[K], Rest>
-        : undefined
-    : P extends keyof T
-    ? T[P]
-    : undefined;
+export type PathValue<T, P extends string> = 
+    P extends `${infer K}.${infer Rest}`
+        ? K extends keyof T
+            ? PathValue<T[K], Rest>
+            : undefined
+        : P extends keyof T
+            ? T[P]
+            : undefined;
 
 /**
  * Retrieves the value at a given path in an object.
@@ -29,15 +30,15 @@ export function getProp<T, P extends string>(obj: T, path: P): PathValue<T, P> {
 
     const keys = path.split(".");
 
-    function recursiveSearch<O>(keys: string[], currentObj: O): any {
+    function recursiveSearch<O>(keys: string[], currentObj: O): PathValue<T, P> {
         if (!currentObj || typeof currentObj !== "object") {
-            return undefined;
+            return undefined as PathValue<T, P>;
         }
 
         const key = keys[0] as keyof O;
 
         if (!(key in currentObj)) {
-            return undefined;
+            return undefined as PathValue<T, P>;
         }
 
         if (keys.length === 1) {
