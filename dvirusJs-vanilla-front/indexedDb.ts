@@ -1,16 +1,45 @@
-const indexedDb = window.indexedDB; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+// const indexedDb = window.indexedDB; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+
+type TableName<T> = {
+    name: keyof T;
+    keyPath: keyof T[keyof T];
+    autoIncrement?: boolean;
+};
 
 /**
  * A class to interact with IndexedDB.
  * @template T - The type of the database schema.
  */
 export class IndexedDb<T extends Record<string, any>> {
+    private tableNames: TableName<T>[];
+
     /**
      * @param {string} dbName - The name of the database.
      * @param {Array<keyof T>} tableNames - The names of the tables.
      * @param {number} version - The version of the database. only 1 and above.
      */
-    constructor(private dbName: string, private tableNames: (keyof T)[], private version: number) {}
+    constructor(
+        private dbName: string,
+        tableNames: (keyof T)[] | TableName<T>[],
+        private version: number
+    ) {
+        if (
+            Array.isArray(tableNames) &&
+            tableNames.length > 0 &&
+            typeof tableNames[0] === "object"
+        ) {
+            this.tableNames = (tableNames as TableName<T>[]).map((x) => ({
+                ...x,
+                autoIncrement: x.autoIncrement ?? false,
+            }));
+        } else {
+            this.tableNames = (tableNames as (keyof T)[]).map((name) => ({
+                name,
+                keyPath: "_id",
+                autoIncrement: true,
+            }));
+        }
+    }
 
     /**
      * Initializes the database.
@@ -59,7 +88,7 @@ export class IndexedDb<T extends Record<string, any>> {
      */
     async getOne<K extends T[TName], TName extends keyof T>(
         tableName: TName,
-        id: number
+        id: number | string
     ): Promise<K> {
         const table = await this._getTable(tableName.toString(), "readonly");
         return new Promise((resolve, reject) => {
@@ -81,7 +110,7 @@ export class IndexedDb<T extends Record<string, any>> {
      */
     async getMany<K extends T[TName], TName extends keyof T>(
         tableName: TName,
-        ids: number[]
+        ids: number[] | string[]
     ): Promise<K[]> {
         const table = await this._getTable(tableName.toString(), "readonly");
         return new Promise((resolve, reject) => {
@@ -251,6 +280,11 @@ export class IndexedDb<T extends Record<string, any>> {
         });
     }
 
+    async dropTable<K extends keyof T>(tableName: K): Promise<void> {
+        const db = await this.initDb();
+        db.deleteObjectStore(tableName.toString());
+    }
+
     /**
      * Initializes the database.
      * @private
@@ -258,25 +292,37 @@ export class IndexedDb<T extends Record<string, any>> {
      */
     private async initDb(): Promise<IDBDatabase> {
         return new Promise<IDBDatabase>((resolve, reject) => {
-            const request = indexedDb.open(this.dbName, this.version);
+            const request = window.indexedDB.open(this.dbName, this.version);
 
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result;
-                this.tableNames.forEach((tableName) => {
-                    if (!db.objectStoreNames.contains(tableName.toString())) {
-                        const objectStore = db.createObjectStore(tableName.toString(), {
-                            keyPath: "_id",
-                            autoIncrement: true,
-                        });
-                        objectStore.createIndex("_id", "_id", { unique: true });
-                    }
-                });
-                for (let i = 0; i < db.objectStoreNames.length; i++) {
-                    const existTableName = db.objectStoreNames.item(i) as string;
-                    if (!this.tableNames.includes(existTableName)) {
-                        db.deleteObjectStore(existTableName);
+
+                // Clear all object stores in the database
+                const length = db.objectStoreNames.length;
+                for (let i = 0; i < length; i++) {
+                    const storeName = db.objectStoreNames.item(0);
+                    if (storeName) {
+                        db.deleteObjectStore(storeName);
                     }
                 }
+
+                this.tableNames.forEach(({ name, keyPath, autoIncrement }) => {
+                    // if (!db.objectStoreNames.contains(name.toString())) {
+                    const objectStore = db.createObjectStore(name.toString(), {
+                        keyPath: (keyPath?.toString()),
+                        autoIncrement: autoIncrement,
+                    });
+                    objectStore.createIndex(keyPath.toString(), keyPath.toString(), {
+                        unique: true,
+                    });
+                    // }
+                });
+                // for (let i = 0; i < db.objectStoreNames.length; i++) {
+                //     const existTableName = db.objectStoreNames.item(i) as string;
+                //     if (!this.tableNames.map((x) => x.name).includes(existTableName)) {
+                //         db.deleteObjectStore(existTableName);
+                //     }
+                // }
             };
 
             request.onsuccess = (event) => {

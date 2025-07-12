@@ -1,0 +1,35 @@
+.overlay-container {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+}
+
+.overlay-backdrop {
+    inset: 0;
+    position: fixed;
+    background-color: #0003;
+    z-index: 0;
+
+    display: none;
+    pointer-events: none;
+}
+.overlay-backdrop.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.overlay-wrapper {
+    pointer-events: none;
+    /* position: relative; */
+    position: fixed;
+    inset: 0;
+    display: flex;
+    z-index: 1;
+}
+
+.overlay-panel {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+}

@@ -34,12 +34,13 @@ export class Result<T, E extends Error = Error> {
      * @returns {Promise<Result<T, E>>} A promise that resolves to a Result.
      */
     static async promise<T, E extends Error = Error>(promise: Promise<T>): Promise<Result<T, E>> {
-        try {
-            const val = await promise;
-            return Result.ok(val);
-        } catch (error) {
-            return Result.err(error);
-        }
+        // try {
+        //     const val = await promise;
+        //     return Result.ok(val);
+        // } catch (error) {
+        //     return Result.err(error);
+        // }
+        return promise.then((v) => Result.ok(v)).catch((e) => Result.err(e));
     }
 
     /**
@@ -104,6 +105,18 @@ export class Result<T, E extends Error = Error> {
     }
 
     /**
+     * Unwraps the result, returning the success value or a default value if the result is a failure.
+     * @param {T} defaultValue - The default value to return if the result is a failure.
+     * @returns {T} The success value or the default value.
+     */
+    unwrapOr(defaultValue: T): T {
+        if (this.isOk()) {
+            return this.#ok as T;
+        }
+        return defaultValue;
+    }
+
+    /**
      * Gets the success value, throwing a custom error message if the result is a failure.
      * @param {string} msg - The custom error message.
      * @returns {T} The success value.
@@ -115,7 +128,7 @@ export class Result<T, E extends Error = Error> {
         }
         if (this.isErr()) {
             const err = this.#err as E;
-            throw (err.message = msg + ":\n" + err.message);
+            throw new Error(msg + ":\n" + err.message);
         }
         throw new Error(msg);
     }
@@ -147,7 +160,7 @@ export class Result<T, E extends Error = Error> {
 
 // usage
 async function main() {
-    function divide(a: number, b: number): Result<number, Error> {
+    function divide(a: number, b: number): Result<number> {
         if (b == 0) {
             return Result.err("cannot divide by 0 :(");
         }
@@ -168,8 +181,6 @@ async function main() {
         }
         return 5;
     }
-
-    // ##############################
 
     const x: Result<number> = await Result.promise(foo());
     if (x.isErr()) {
@@ -193,4 +204,11 @@ async function main() {
         return;
     }
     console.log(y.value);
+
+    // ##############################
+
+    const aaa = Result.ok({ name: "myName" });
+    const aaRes = aaa.unwrapOr({ name: "default" }).name;
+    const aaRes2 = aaa.expect("error message").name;
+    const aaRes3 = aaa.unwrap().name;
 }

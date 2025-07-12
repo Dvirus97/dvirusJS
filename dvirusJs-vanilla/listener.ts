@@ -3,13 +3,13 @@
  * @template TArgs - The type of the arguments passed to the listener function.
  * @param {TArgs} args - The arguments passed to the listener function.
  */
-export type ListenerFn<TArgs> = (args: TArgs) => void;
+export type ListenerFn<TArgs> = (args: TArgs & { eventName?: string }) => void;
 
 /**
  * A class for managing event listeners.
  * @template TArgs - The type of the arguments passed to the listener functions.
  */
-export class EventListener<TArgs> {
+export class EventListener<TArgs = any> {
     private events: Record<string, { fn: ListenerFn<TArgs>; fnName?: string }[]> = {};
 
     /**
@@ -25,6 +25,12 @@ export class EventListener<TArgs> {
         this.events[event].push({ fn: listener, fnName });
     }
 
+    onMany(events: string[], listener: ListenerFn<TArgs>) {
+        events.forEach((event) => {
+            this.on(event, listener);
+        });
+    }
+
     /**
      * Emits an event, calling all registered listeners with the provided arguments.
      * @param {string} event - The name of the event.
@@ -35,7 +41,7 @@ export class EventListener<TArgs> {
             return;
         }
         this.events[event].forEach((listener) => {
-            listener.fn(args);
+            listener.fn({ ...args, eventName: event });
         });
     }
 
@@ -76,7 +82,7 @@ export class Listener<TArgs> {
      * @param {TArgs} args - The arguments to pass to the listener functions.
      */
     emit(args: TArgs) {
-        this.map.forEach((listener) => listener(args));
+        this.map.forEach((listener) => listener({ ...args, eventName: undefined }));
     }
 
     /**
