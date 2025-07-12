@@ -1,9 +1,9 @@
-export function toObject<T extends Record<string, any>>(
+export function toObject<T extends Record<string, any> | string | number>(
     list: T[],
-    keyGetter: (item: T) => string | number
+    keyGetter: (item: T) => string | number | { toString: () => string }
 ): Record<string, T> {
     return list.reduce((acc, item) => {
-        acc[keyGetter(item)] = item;
+        acc[keyGetter(item).toString()] = item;
         return acc;
     }, {} as Record<string, T>);
 }

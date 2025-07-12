@@ -57,7 +57,7 @@ export function createString(
  * @param {boolean} [withOpacity=false] - If true, includes 2 extra hex digits for opacity (alpha channel).
  * @returns {string} A hex color code string, e.g. "#a1b2c3" or "#a1b2c3ff"
  */
-export function createHexColor(withOpacity: boolean = false): string {
+export function randomHexColor(withOpacity: boolean = false): string {
     // Helper to create a random hex value of given length
     function randomHex(len: number): string {
         let hex = "";
