@@ -4,8 +4,8 @@
  * @template E - The type of the error value, extending Error.
  */
 export class Result<T, E extends Error = Error> {
-    #ok: T | null;
-    #err: E | null;
+    #ok: T | null = null;
+    #err: E | null = null;
 
     /**
      * Creates a successful result.
@@ -40,7 +40,7 @@ export class Result<T, E extends Error = Error> {
         // } catch (error) {
         //     return Result.err(error);
         // }
-        return promise.then((v) => Result.ok(v)).catch((e) => Result.err(e));
+        return promise.then((v) => Result.ok(v ?? 'void' as T)).catch((e) => Result.err(e));
     }
 
     /**
@@ -56,8 +56,8 @@ export class Result<T, E extends Error = Error> {
         try {
             const val = func(...args);
             return Result.ok(val);
-        } catch (error) {
-            return Result.err(error);
+        } catch (error ) {
+            return Result.err(error as E);
         }
     }
 
