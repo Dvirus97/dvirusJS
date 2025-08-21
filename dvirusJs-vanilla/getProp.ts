@@ -94,5 +94,6 @@ function main() {
     const _hello = translate("general.hello");
     const _notFound = translate("errors.notFound");
     const _notFound2 = translate("errors.notFound2");
+
     console.log(_name, _age, _hello, _notFound, _notFound2); // Name, Age, Hello, Not found, errors.notFound2
 }
