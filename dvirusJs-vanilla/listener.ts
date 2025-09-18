@@ -25,9 +25,9 @@ export class EventListener<TArgs = any> {
         this.events[event].push({ fn: listener, fnName });
     }
 
-    onMany(events: string[], listener: ListenerFn<TArgs>) {
+    onMany(events: readonly string[], listener: ListenerFn<TArgs>, fnName?: string) {
         events.forEach((event) => {
-            this.on(event, listener);
+            this.on(event, listener, fnName);
         });
     }
 
@@ -55,6 +55,14 @@ export class EventListener<TArgs = any> {
             return;
         }
         this.events[event] = this.events[event].filter((l) => l.fnName != fnName);
+    }
+
+    offAll(event?: string): void {
+        if (event && this.events[event]) {
+            this.events[event] = [];
+        } else {
+            this.events = {};
+        }
     }
 }
 
