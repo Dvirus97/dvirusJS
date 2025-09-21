@@ -11,3 +11,4 @@ export * from "./string-creator";
 export * from "./tryCatch";
 export * from "./types";
 export * from "./toObject";
+export * from "./convert-cases";
