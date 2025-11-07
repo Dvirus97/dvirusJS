@@ -1,13 +1,11 @@
-
 /**
  * Delay for a given time
  * @param ms - Time in milliseconds
  * @returns Promise
  */
-export async function delay(ms: number) {
-    return await new Promise((resolve) => setTimeout(resolve, ms));
+export async function delay<R = unknown>(ms: number, value?: R) {
+  return await new Promise<R | undefined>((resolve) => setTimeout(() => resolve(value), ms));
 }
-
 
 /**
  * Clamp a value between a minimum and maximum value
@@ -17,9 +15,9 @@ export async function delay(ms: number) {
  * @returns Clamped value
  */
 export function clamp(min: number, value: number, max: number): number {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
 }
 
 /**
@@ -28,14 +26,11 @@ export function clamp(min: number, value: number, max: number): number {
  * @param delay - Delay in milliseconds
  * @returns Debounced function
  */
-export function debounce<T extends (...args: any[]) => void>(
-    func: T,
-    delay: number
-): (...args: Parameters<T>) => void {
-    let timer: ReturnType<typeof setTimeout>;
+export function debounce<T extends (...args: any[]) => void>(func: T, delay: number): (...args: Parameters<T>) => void {
+  let timer: ReturnType<typeof setTimeout>;
 
-    return (...args: Parameters<T>) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => func(...args), delay);
-    };
+  return (...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
 }

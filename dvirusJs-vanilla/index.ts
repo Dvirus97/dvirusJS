@@ -12,3 +12,5 @@ export * from "./tryCatch";
 export * from "./types";
 export * from "./toObject";
 export * from "./convert-cases";
+export * from "./pipe";
+export * from "./array-proxy";

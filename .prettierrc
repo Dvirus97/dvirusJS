@@ -1,0 +1,11 @@
+{
+    "printWidth": 80,
+    "overrides": [
+        {
+            "files": "./dvirusJs-vanilla/pipe/*",
+            "options": {
+                "printWidth": 999999
+            }
+        }
+    ]
+}
