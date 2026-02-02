@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "dvirusJs-lib": {
+      "projectType": "library",
+      "root": "projects/dvirus-js-lib",
+      "sourceRoot": "projects/dvirus-js-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/dvirus-js-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/dvirus-js-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/dvirus-js-lib/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "signals": {
+      "projectType": "library",
+      "root": "projects/signals",
+      "sourceRoot": "projects/signals/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/signals/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/signals/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/signals/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
+}

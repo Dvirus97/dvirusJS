@@ -1,0 +1,47 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "dvirusJs-lib": [
+        "./dist/dvirus-js-lib"
+      ],
+      "signals": [
+        "./dist/signals"
+      ]
+    },
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/dvirus-js-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/dvirus-js-lib/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/signals/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/signals/tsconfig.spec.json"
+    }
+  ]
+}
