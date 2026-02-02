@@ -52,12 +52,12 @@ PersonForm will be:
 */
 
 // ✅ Example usage in an Angular FormGroup:
-const personForm = new FormGroup<PersonForm>({
-  name: new FormControl(''),
-  age: new FormControl(0),
-  address: new FormGroup({
-    street: new FormArray([]),
-    city: new FormControl(''),
-  }),
-  hobbies: new FormArray([new FormControl('')]),
-});
+// const personForm = new FormGroup<PersonForm>({
+//   name: new FormControl(''),
+//   age: new FormControl(0),
+//   address: new FormGroup({
+//     street: new FormArray([]),
+//     city: new FormControl(''),
+//   }),
+//   hobbies: new FormArray([new FormControl('')]),
+// });
