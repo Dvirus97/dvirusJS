@@ -12,6 +12,20 @@ This library is separated into some sections.
         - some for handle errors
         - dom manipulations
         - and many more
+     
+- angular section
+    - signals utils
+        - signalOrValue
+            - signal<T> | T
+        - convert object to SignalObj
+            - object that all its values are signals
+        - convert signalObj to plain object.
+    - signalForm
+        - manage your form state with signals.
+        - handle: state, errors, warnings, disabled, touched, dirty.
+        - work with groups, arrays, and premitives.
+    - clickOutside directive
+        - emits event when you click outside the target element.
 
 ---
 At the end of each file i added a `usage example` code. hope thats help.
